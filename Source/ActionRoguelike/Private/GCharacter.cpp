@@ -15,7 +15,7 @@ AGCharacter::AGCharacter()
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>("SpringArmComp");  //弹簧臂实例化
 	SpringArmComp->SetupAttachment(RootComponent);                                 //将弹簧臂组件设置在根部组件
 
-	CameraComp = CreateDefaultSubobject<UCameraComponent>("CameraComp");           //相机实例化	
+	CameraComp = CreateDefaultSubobject<UCameraComponent>("CameraComp");           //相机实例化
 	CameraComp->SetupAttachment(SpringArmComp);                                    //将相机设置在弹簧臂上
 }
 
@@ -24,6 +24,12 @@ void AGCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+}
+
+//向前或向后移动
+void AGCharacter::MoveForward(float Value)
+{
+	AddMovementInput(GetActorForwardVector(), Value);  //添加移动输入，获取Actor前进向量
 }
 
 // Called every frame
@@ -38,5 +44,8 @@ void AGCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	PlayerInputComponent->BindAxis("MoveForward", this, &AGCharacter::MoveForward);  //绑定轴：前进后退
+
+	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);  //水平转向
 }
 
