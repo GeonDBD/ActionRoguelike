@@ -4,6 +4,7 @@
 #include "GCharacter.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
 AGCharacter::AGCharacter()
@@ -14,9 +15,14 @@ AGCharacter::AGCharacter()
 
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>("SpringArmComp");  //弹簧臂实例化
 	SpringArmComp->SetupAttachment(RootComponent);                                 //将弹簧臂组件设置在根部组件
+	SpringArmComp->bUsePawnControlRotation = true;  //设置Pawn控制默认为开
 
 	CameraComp = CreateDefaultSubobject<UCameraComponent>("CameraComp");           //相机实例化
 	CameraComp->SetupAttachment(SpringArmComp);                                    //将相机设置在弹簧臂上
+
+	bUseControllerRotationYaw = false;  //设置yaw控制默认为关
+
+	GetCharacterMovement()->bOrientRotationToMovement = true;  //将旋转定向到运动
 }
 
 // Called when the game starts or when spawned
@@ -24,12 +30,6 @@ void AGCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-}
-
-//向前或向后移动
-void AGCharacter::MoveForward(float Value)
-{
-	AddMovementInput(GetActorForwardVector(), Value);  //添加移动输入，获取Actor前进向量
 }
 
 // Called every frame
@@ -45,7 +45,45 @@ void AGCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &AGCharacter::MoveForward);  //绑定轴：前进后退
+	PlayerInputComponent->BindAxis("MoveRight", this, &AGCharacter::MoveRight);  //绑定轴：左右
 
 	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);  //水平转向
+	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);  //抬头低头
+
+	PlayerInputComponent->BindAction("PrimaryAttack", IE_Pressed, this, &AGCharacter::PrimaryAttack);
 }
 
+//向前或向后移动
+void AGCharacter::MoveForward(float Value)
+{
+	FRotator ControlRot = GetControlRotation();  //获取旋转控制
+	ControlRot.Pitch = 0.0f;
+	ControlRot.Roll = 0.0f;
+
+	AddMovementInput(ControlRot.Vector(), Value);  //添加移动输入，获取Actor前进向量
+}
+
+//左右移动
+void AGCharacter::MoveRight(float Value)
+{
+	FRotator ControlRot = GetControlRotation();  //获取旋转控制
+	ControlRot.Pitch = 0.0f;
+	ControlRot.Roll = 0.0f;
+
+	FVector RightVector = FRotationMatrix(ControlRot).GetScaledAxis(EAxis::Y);  //
+
+	AddMovementInput(RightVector, Value);   //
+}
+
+//普通攻击
+void AGCharacter::PrimaryAttack()
+{
+	FVector HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");  //创建向量获取骨骼的"Muzzle_01"插槽
+
+	FTransform SpawnTM = FTransform(GetControlRotation(), HandLocation);
+
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+	GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
+}
