@@ -46,11 +46,16 @@ void AGCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &AGCharacter::MoveForward);  //绑定轴：前进后退
 	PlayerInputComponent->BindAxis("MoveRight", this, &AGCharacter::MoveRight);  //绑定轴：左右
+	
 
 	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);  //水平转向
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);  //抬头低头
 
 	PlayerInputComponent->BindAction("PrimaryAttack", IE_Pressed, this, &AGCharacter::PrimaryAttack);
+
+	//跳跃
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AGCharacter::Jump);
+	PlayerInputComponent->BindAction("Jump", IE_Released, this, &AGCharacter::StopJumping);
 }
 
 //向前或向后移动
