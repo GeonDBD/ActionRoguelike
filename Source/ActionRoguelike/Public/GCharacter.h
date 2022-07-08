@@ -25,8 +25,13 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	UCameraComponent* CameraComp;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Attack")
 	TSubclassOf<AActor> ProjectileClass;
+
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	UAnimMontage* AttackAnim;
+
+	FTimerHandle TimeHandle_PrimaryAttack;
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -34,6 +39,7 @@ protected:
 	void MoveForward(float Value);
 	void MoveRight(float Value);
 	void PrimaryAttack();
+	void PrimaryAttack_TimeElapsed();
 
 public:	
 	// Called every frame
