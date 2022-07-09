@@ -5,6 +5,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GInteractionComponent.h"
 
 // Sets default values
 AGCharacter::AGCharacter()
@@ -23,6 +24,9 @@ AGCharacter::AGCharacter()
 	bUseControllerRotationYaw = false;  // 设置yaw控制默认为关
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;  // 将旋转定向到运动
+
+	// 实例化交互组件
+	InteractionComp = CreateAbstractDefaultSubobject<UGInteractionComponent>("InteractionComp");
 }
 
 // Called when the game starts or when spawned
@@ -40,6 +44,7 @@ void AGCharacter::Tick(float DeltaTime)
 }
 
 // Called to bind functionality to input
+// 调用以将功能绑定到输入
 void AGCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -51,11 +56,15 @@ void AGCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);      // 水平转向
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);  // 抬头低头
 
+	// 普通攻击
 	PlayerInputComponent->BindAction("PrimaryAttack", IE_Pressed, this, &AGCharacter::PrimaryAttack);
 
 	// 跳跃
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AGCharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &AGCharacter::StopJumping);
+
+	// 基本交互
+	PlayerInputComponent->BindAction("PrimaryInteract", IE_Pressed, this, &AGCharacter::PrimaryInteract);
 }
 
 // 向前或向后移动
@@ -89,10 +98,8 @@ void AGCharacter::PrimaryAttack()
 	// 定时器
 	GetWorldTimerManager().SetTimer(TimeHandle_PrimaryAttack, this, &AGCharacter::PrimaryAttack_TimeElapsed, 0.2f);
 
-	// 
+	// 清除定时器
 	//GetWorldTimerManager().ClearTimer(TimeHandle_PrimaryAttack);
-
-	
 }
 
 // 普通攻击过时
@@ -106,4 +113,13 @@ void AGCharacter::PrimaryAttack_TimeElapsed()
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 	GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
+}
+
+// 基本互动实现
+void AGCharacter::PrimaryInteract()
+{
+	if (InteractionComp)
+	{
+		InteractionComp->PrimaryInteract();
+	}
 }

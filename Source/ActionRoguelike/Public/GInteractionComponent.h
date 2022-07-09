@@ -16,6 +16,9 @@ public:
 	// Sets default values for this component's properties
 	UGInteractionComponent();
 
+	// »ù±¾»¥¶¯
+	void PrimaryInteract();
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;

@@ -8,6 +8,7 @@
 
 class UCameraComponent;
 class USpringArmComponent;
+class UGInteractionComponent;
 
 UCLASS()
 class ACTIONROGUELIKE_API AGCharacter : public ACharacter
@@ -33,13 +34,22 @@ protected:
 
 	FTimerHandle TimeHandle_PrimaryAttack;
 
+	UPROPERTY(VisibleAnywhere)
+	UGInteractionComponent* InteractionComp;
+
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	// 移动控制
 	void MoveForward(float Value);
 	void MoveRight(float Value);
+
+	// 普通攻击
 	void PrimaryAttack();
 	void PrimaryAttack_TimeElapsed();
+
+	// 基本交互
+	void PrimaryInteract();
 
 public:	
 	// Called every frame

@@ -19,12 +19,12 @@ public:
 	UPROPERTY(EditAnywhere)
 	float TargetPitch;
 
-	//
+	// 交互工具组件
 	void Interact_Implementation(APawn* InstigatorPawn);
 
 protected:
 
-	// 创建宝箱的底部和盖子两个组件
+	// 宝箱的底部和盖子两个组件
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* BaseMesh;
 

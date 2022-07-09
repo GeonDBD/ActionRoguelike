@@ -21,6 +21,7 @@ AGItemChest::AGItemChest()
 	TargetPitch = 110;
 }
 
+// 交互组件功能
 void AGItemChest::Interact_Implementation(APawn* InstigatorPawn)
 {
 	LidMesh->SetRelativeRotation(FRotator(TargetPitch, 0, 0));
